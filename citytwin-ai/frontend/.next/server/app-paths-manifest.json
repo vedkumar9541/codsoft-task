@@ -1,0 +1,9 @@
+{
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/emergency/page": "app/dashboard/emergency/page.js",
+  "/dashboard/analytics/page": "app/dashboard/analytics/page.js",
+  "/dashboard/weather/page": "app/dashboard/weather/page.js",
+  "/dashboard/predictions/page": "app/dashboard/predictions/page.js",
+  "/dashboard/3d/page": "app/dashboard/3d/page.js",
+  "/dashboard/traffic/page": "app/dashboard/traffic/page.js"
+}
