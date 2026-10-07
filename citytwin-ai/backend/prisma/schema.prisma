@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./citytwin.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("ANALYST")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Junction {
+  id              String           @id @default(uuid())
+  name            String
+  lat             Float
+  lng             Float
+  type            String           @default("intersection")
+  congestionLevel Float            @default(0)
+  avgSpeed        Float            @default(40)
+  aqi             Float            @default(50)
+  temperature     Float            @default(35)
+  accidents       Int              @default(0)
+  zone            String           @default("Central")
+  roadsFrom       Road[]           @relation("FromJunction")
+  roadsTo         Road[]           @relation("ToJunction")
+  trafficReadings TrafficReading[]
+  sensors         Sensor[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model Road {
+  id             String   @id @default(uuid())
+  name           String
+  fromJunctionId String
+  toJunctionId   String
+  fromJunction   Junction @relation("FromJunction", fields: [fromJunctionId], references: [id])
+  toJunction     Junction @relation("ToJunction", fields: [toJunctionId], references: [id])
+  length         Float
+  lanes          Int      @default(2)
+  speedLimit     Float    @default(60)
+  condition      String   @default("good")
+  congestion     Float    @default(0)
+  currentSpeed   Float    @default(40)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Hospital {
+  id                String   @id @default(uuid())
+  name              String
+  lat               Float
+  lng               Float
+  totalBeds         Int
+  availableBeds     Int
+  emergencyCapacity Int
+  currentLoad       Float    @default(0)
+  specialties       String   @default("General")
+  phone             String   @default("")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Sensor {
+  id          String    @id @default(uuid())
+  type        String
+  lat         Float
+  lng         Float
+  junctionId  String?
+  junction    Junction? @relation(fields: [junctionId], references: [id])
+  status      String    @default("active")
+  lastReading DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TrafficReading {
+  id           String   @id @default(uuid())
+  junctionId   String
+  junction     Junction @relation(fields: [junctionId], references: [id])
+  timestamp    DateTime @default(now())
+  vehicleCount Int
+  avgSpeed     Float
+  congestion   Float
+  bikeCount    Int      @default(0)
+  carCount     Int      @default(0)
+  busCount     Int      @default(0)
+  truckCount   Int      @default(0)
+}
+
+model WeatherReading {
+  id          String   @id @default(uuid())
+  timestamp   DateTime @default(now())
+  lat         Float
+  lng         Float
+  temperature Float
+  humidity    Float
+  rainfall    Float    @default(0)
+  windSpeed   Float
+  windDir     String   @default("N")
+  condition   String   @default("clear")
+  visibility  Float    @default(10)
+}
+
+model AQIReading {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  lat       Float
+  lng       Float
+  pm25      Float
+  pm10      Float
+  no2       Float
+  so2       Float
+  co        Float
+  o3        Float
+  aqi       Float
+  category  String   @default("moderate")
+}
+
+model EmergencyIncident {
+  id           String    @id @default(uuid())
+  type         String
+  severity     String    @default("medium")
+  lat          Float
+  lng          Float
+  description  String    @default("")
+  status       String    @default("reported")
+  responseTime Float?
+  reportedAt   DateTime  @default(now())
+  resolvedAt   DateTime?
+  assignedTo   String?   @default("")
+}
+
+model Prediction {
+  id             String   @id @default(uuid())
+  type           String
+  targetId       String?
+  targetName     String   @default("")
+  timestamp      DateTime @default(now())
+  predictedValue Float
+  actualValue    Float?
+  confidence     Float    @default(0.8)
+  horizon        String   @default("1h")
+  model          String   @default("ensemble")
+}
+
+model Alert {
+  id           String   @id @default(uuid())
+  type         String
+  severity     String   @default("info")
+  title        String
+  message      String
+  lat          Float?
+  lng          Float?
+  acknowledged Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
